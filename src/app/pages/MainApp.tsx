@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { Home, Plus, List, PiggyBank, Users, LogOut } from "lucide-react";
+import { Home, Plus, List, PiggyBank, Users, LogOut, UserCircle2 } from "lucide-react";
 import { Dashboard } from "../components/Dashboard";
 import { AddTransaction } from "../components/AddTransaction";
 import { TransactionList } from "../components/TransactionList";
 import { BudgetManagement } from "../components/BudgetManagement";
 import { FamilyMemberManagement, type FamilyMember } from "../components/FamilyMemberManagement";
 import { MemberSelector } from "../components/MemberSelector";
+import { ProfileSelector } from "../components/ProfileSelector";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { SettingsMenu } from "../components/SettingsMenu";
+import { AnimatedBackground } from "../components/AnimatedBackground";
+import { Preloader } from "../components/Preloader";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import logoImage from "figma:asset/dcd0af41caa7c6f5a83d31ce1f1e04ad05e2a042.png";
@@ -58,7 +62,9 @@ export function MainApp() {
   const [banks, setBanks] = useState<Bank[]>([]);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [minLoadingTime, setMinLoadingTime] = useState(true);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -67,12 +73,21 @@ export function MainApp() {
     }
   }, [session, loading, navigate]);
 
+  // Minimum loading time (2 seconds) to show the preloader
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinLoadingTime(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Load data from localStorage on mount
   useEffect(() => {
     const savedTransactions = localStorage.getItem("familyFinances_transactions");
     const savedBudgets = localStorage.getItem("familyFinances_budgets");
     const savedBanks = localStorage.getItem("familyFinances_banks");
     const savedMembers = localStorage.getItem("familyFinances_members");
+    const savedActiveUserId = localStorage.getItem("familyFinances_activeUserId");
 
     if (savedTransactions) {
       setTransactions(JSON.parse(savedTransactions));
@@ -84,7 +99,12 @@ export function MainApp() {
       setBanks(JSON.parse(savedBanks));
     }
     if (savedMembers) {
-      setMembers(JSON.parse(savedMembers));
+      const loadedMembers = JSON.parse(savedMembers);
+      setMembers(loadedMembers);
+      // Set activeUserId if saved and member exists
+      if (savedActiveUserId && loadedMembers.find((m: FamilyMember) => m.id === savedActiveUserId)) {
+        setActiveUserId(savedActiveUserId);
+      }
     } else {
       const defaultMember: FamilyMember = {
         id: Date.now().toString(),
@@ -134,6 +154,16 @@ export function MainApp() {
     if (selectedMemberId && !newMembers.find((m) => m.id === selectedMemberId)) {
       setSelectedMemberId(null);
     }
+    // Check if activeUser still exists
+    if (activeUserId && !newMembers.find((m) => m.id === activeUserId)) {
+      setActiveUserId(null);
+      localStorage.removeItem("familyFinances_activeUserId");
+    }
+  };
+
+  const handleSelectProfile = (memberId: string) => {
+    setActiveUserId(memberId);
+    localStorage.setItem("familyFinances_activeUserId", memberId);
   };
 
   const handleSignOut = async () => {
@@ -141,23 +171,26 @@ export function MainApp() {
     navigate("/login");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-4 border-cyan-500/30 border-t-cyan-500 animate-spin" />
-          <p className="text-sm text-gray-500">{t.loading}</p>
-        </div>
-      </div>
-    );
+  if (loading || minLoadingTime) {
+    return <Preloader />;
   }
 
   if (!session) return null;
 
+  // Show profile selector if no active user is selected
+  if (!activeUserId && members.length > 0 && dataLoaded) {
+    return <ProfileSelector members={members} onSelectProfile={handleSelectProfile} />;
+  }
+
+  const activeUser = members.find((m) => m.id === activeUserId);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50">
+    <div className="min-h-screen relative animate-fadeIn">
+      {/* Animated Creative Background */}
+      <AnimatedBackground />
+      
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-cyan-200/50 sticky top-0 z-10 shadow-sm">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-cyan-200/50 sticky top-0 z-10 shadow-sm relative">
         <div className="max-w-md mx-auto px-3 py-3">
           {/* Logo, Title, Lang switcher, Logout */}
           <div className="flex items-center justify-between mb-2">
@@ -168,13 +201,29 @@ export function MainApp() {
                 {t.appName}
               </h1>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-              title={t.logout}
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              {activeUser && (
+                <button
+                  onClick={() => {
+                    setActiveUserId(null);
+                    localStorage.removeItem("familyFinances_activeUserId");
+                  }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full text-white hover:ring-2 hover:ring-cyan-400 transition-all shadow-md"
+                  style={{ backgroundColor: activeUser.color }}
+                  title={t.profileSelector.switchProfile}
+                >
+                  <UserCircle2 className="h-4 w-4" />
+                </button>
+              )}
+              <SettingsMenu />
+              <button
+                onClick={handleSignOut}
+                className="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                title={t.logout}
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           </div>
           {/* Member selector */}
           {(activeTab === "dashboard" || activeTab === "transactions" || activeTab === "budgets") &&
@@ -195,7 +244,7 @@ export function MainApp() {
           <Dashboard transactions={transactions} members={members} selectedMemberId={selectedMemberId} />
         )}
         {activeTab === "add" && (
-          <AddTransaction onAddTransaction={handleAddTransaction} members={members} />
+          <AddTransaction onAddTransaction={handleAddTransaction} members={members} activeUserId={activeUserId!} />
         )}
         {activeTab === "transactions" && (
           <TransactionList

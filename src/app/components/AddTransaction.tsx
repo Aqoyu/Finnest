@@ -22,6 +22,7 @@ interface Transaction {
 interface AddTransactionProps {
   onAddTransaction: (transaction: Transaction) => void;
   members: FamilyMember[];
+  activeUserId: string;
 }
 
 // Keys stored in localStorage (always Russian — stable across language switches)
@@ -31,17 +32,15 @@ const EXPENSE_CATEGORY_KEYS = [
   "Здоровье", "Образование", "Покупки", "Рестораны", "Другие расходы",
 ];
 
-export function AddTransaction({ onAddTransaction, members }: AddTransactionProps) {
+export function AddTransaction({ onAddTransaction, members, activeUserId }: AddTransactionProps) {
   const { t, translateCategory } = useLanguage();
 
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(
-    members.length > 0 ? members[0].id : null
-  );
 
+  const activeUser = members.find((m) => m.id === activeUserId);
   const categoryKeys = type === "income" ? INCOME_CATEGORY_KEYS : EXPENSE_CATEGORY_KEYS;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,10 +48,6 @@ export function AddTransaction({ onAddTransaction, members }: AddTransactionProp
 
     if (!amount || !category || !description) {
       toast.error(t.addTransaction.fillAllFields);
-      return;
-    }
-    if (!selectedMemberId) {
-      toast.error(t.addTransaction.selectMember);
       return;
     }
     const amountNum = parseFloat(amount);
@@ -68,7 +63,7 @@ export function AddTransaction({ onAddTransaction, members }: AddTransactionProp
       category, // store as Russian key
       description,
       date: new Date().toISOString(),
-      memberId: selectedMemberId,
+      memberId: activeUserId,
     };
 
     onAddTransaction(transaction);
@@ -102,15 +97,24 @@ export function AddTransaction({ onAddTransaction, members }: AddTransactionProp
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label>{t.addTransaction.familyMember}</Label>
-              <MemberSelector
-                members={members}
-                selectedMemberId={selectedMemberId}
-                onSelectMember={setSelectedMemberId}
-                showAllOption={false}
-              />
-            </div>
+            {/* Current User Display */}
+            {activeUser && (
+              <div className="space-y-2">
+                <Label>{t.addTransaction.familyMember}</Label>
+                <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-cyan-200 bg-gradient-to-r from-cyan-50 to-blue-50">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-md"
+                    style={{ backgroundColor: activeUser.color }}
+                  >
+                    {activeUser.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">{activeUser.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.profileSelector.currentProfile}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label>{t.addTransaction.type}</Label>

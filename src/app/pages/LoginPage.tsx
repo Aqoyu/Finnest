@@ -4,6 +4,7 @@ import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { AnimatedBackground } from "../components/AnimatedBackground";
 import logoImage from "figma:asset/dcd0af41caa7c6f5a83d31ce1f1e04ad05e2a042.png";
 
 function GoogleIcon() {
@@ -47,15 +48,18 @@ export function LoginPage() {
     setGoogleLoading(true);
     const { error } = await signInWithGoogle();
     if (error) {
-      setError(t.auth.googleError + error);
+      const isProviderDisabled =
+        error.includes("provider is not enabled") ||
+        error.includes("validation_failed") ||
+        error.includes("Unsupported provider");
+      setError(isProviderDisabled ? t.auth.googleProviderDisabled : t.auth.googleError + error);
       setGoogleLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50 flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-[-80px] left-[-80px] w-64 h-64 rounded-full bg-gradient-to-br from-cyan-300/30 to-blue-300/30 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-[-80px] right-[-80px] w-72 h-72 rounded-full bg-gradient-to-br from-teal-300/30 to-cyan-300/30 blur-3xl pointer-events-none" />
+      <AnimatedBackground />
 
       {/* Language switcher — top right */}
       <div className="absolute top-4 right-4 z-20">

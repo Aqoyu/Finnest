@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Plus, Edit2, Trash2, User } from "lucide-react";
+import { Users, Plus, Edit2, Trash2, User, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -13,6 +13,7 @@ export interface FamilyMember {
   id: string;
   name: string;
   color: string;
+  pin?: string;
 }
 
 interface FamilyMemberManagementProps {
@@ -31,6 +32,7 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [memberName, setMemberName] = useState("");
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
+  const [memberPin, setMemberPin] = useState("");
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
 
   const handleSaveMember = () => {
@@ -39,9 +41,17 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
       return;
     }
 
+    // Validate PIN if provided
+    if (memberPin && !/^\d{4}$/.test(memberPin)) {
+      toast.error(t.familyManagement.pinInvalid);
+      return;
+    }
+
     if (editingMember) {
       const updatedMembers = members.map((m) =>
-        m.id === editingMember.id ? { ...m, name: memberName.trim(), color: selectedColor } : m
+        m.id === editingMember.id
+          ? { ...m, name: memberName.trim(), color: selectedColor, pin: memberPin || undefined }
+          : m
       );
       onUpdateMembers(updatedMembers);
       toast.success(t.familyManagement.memberUpdated);
@@ -50,6 +60,7 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
         id: Date.now().toString(),
         name: memberName.trim(),
         color: selectedColor,
+        pin: memberPin || undefined,
       };
       onUpdateMembers([...members, newMember]);
       toast.success(t.familyManagement.memberAdded);
@@ -58,6 +69,7 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
     setIsDialogOpen(false);
     setMemberName("");
     setSelectedColor(COLORS[0]);
+    setMemberPin("");
     setEditingMember(null);
   };
 
@@ -65,6 +77,7 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
     setEditingMember(member);
     setMemberName(member.name);
     setSelectedColor(member.color);
+    setMemberPin(member.pin || "");
     setIsDialogOpen(true);
   };
 
@@ -86,7 +99,7 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
-              onClick={() => { setEditingMember(null); setMemberName(""); setSelectedColor(COLORS[0]); }}
+              onClick={() => { setEditingMember(null); setMemberName(""); setSelectedColor(COLORS[0]); setMemberPin(""); }}
               className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 shadow-md"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -131,6 +144,24 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="member-pin">{t.familyManagement.pin}</Label>
+                <Input
+                  id="member-pin"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder={t.familyManagement.pinPlaceholder}
+                  value={memberPin}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ""); // Only digits
+                    setMemberPin(value);
+                  }}
+                  className="bg-white"
+                />
+                <p className="text-xs text-muted-foreground">{t.familyManagement.pinOptional}</p>
+              </div>
+
               <Button
                 onClick={handleSaveMember}
                 className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
@@ -165,7 +196,12 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-gray-800">{member.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-gray-800">{member.name}</p>
+                        {member.pin && (
+                          <Lock className="h-3.5 w-3.5 text-cyan-600" />
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
