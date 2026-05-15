@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "./components/ui/sonner";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -11,10 +12,10 @@ import { MainApp } from "./pages/MainApp";
 function LoadingScreen() {
   const { t } = useLanguage();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)" }}>
       <div className="flex flex-col items-center gap-3">
-        <div className="w-10 h-10 rounded-full border-4 border-cyan-500/30 border-t-cyan-500 animate-spin" />
-        <p className="text-sm text-gray-500">{t.loading}</p>
+        <div className="w-10 h-10 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: "var(--brand-20)", borderTopColor: "var(--brand)" }} />
+        <p className="text-sm" style={{ color: "var(--text-subtle)" }}>{t.loading}</p>
       </div>
     </div>
   );
@@ -23,12 +24,14 @@ function LoadingScreen() {
 // Root layout: provides language + auth context and toaster
 function RootLayout() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <Outlet />
-        <Toaster />
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <Outlet />
+          <Toaster />
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

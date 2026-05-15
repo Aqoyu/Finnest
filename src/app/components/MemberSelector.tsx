@@ -1,6 +1,5 @@
-import { User, Users } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { User, Users, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 
 export interface FamilyMember {
@@ -16,65 +15,79 @@ interface MemberSelectorProps {
   showAllOption?: boolean;
 }
 
-export function MemberSelector({
-  members,
-  selectedMemberId,
-  onSelectMember,
-  showAllOption = true,
-}: MemberSelectorProps) {
+export function MemberSelector({ members, selectedMemberId, onSelectMember, showAllOption = true }: MemberSelectorProps) {
   const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const selectedMember = members.find((m) => m.id === selectedMemberId);
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   return (
-    <Select
-      value={selectedMemberId || "all"}
-      onValueChange={(value) => onSelectMember(value === "all" ? null : value)}
-    >
-      <SelectTrigger className="w-full bg-white/90 backdrop-blur-sm border-cyan-200/50 hover:border-cyan-300 transition-colors">
-        <div className="flex items-center gap-2">
-          {selectedMember ? (
-            <>
-              <Avatar className="h-6 w-6 ring-1 ring-white shadow-sm">
-                <AvatarFallback style={{ backgroundColor: selectedMember.color }}>
-                  <User className="h-3 w-3 text-white" />
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-medium text-gray-800">{selectedMember.name}</span>
-            </>
-          ) : (
-            <>
-              <div className="p-1 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full">
-                <Users className="h-4 w-4 text-cyan-600" />
-              </div>
-              <span className="font-medium text-gray-800">{t.allFamily}</span>
-            </>
-          )}
-        </div>
-      </SelectTrigger>
-      <SelectContent className="bg-white/95 backdrop-blur-xl">
-        {showAllOption && (
-          <SelectItem value="all" className="hover:bg-cyan-50">
-            <div className="flex items-center gap-2">
-              <div className="p-1 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full">
-                <Users className="h-4 w-4 text-cyan-600" />
-              </div>
-              <span>{t.allFamily}</span>
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-all text-left"
+        style={{ background: "var(--surface)", border: "1px solid var(--card-border)" }}
+      >
+        {selectedMember ? (
+          <>
+            <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: selectedMember.color }}>
+              <User className="h-3 w-3 text-white" />
             </div>
-          </SelectItem>
+            <span className="text-sm font-medium flex-1" style={{ color: "var(--text-strong)" }}>{selectedMember.name}</span>
+          </>
+        ) : (
+          <>
+            <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--brand-15)" }}>
+              <Users className="h-3 w-3" style={{ color: "var(--brand)" }} />
+            </div>
+            <span className="text-sm font-medium flex-1" style={{ color: "var(--text-strong)" }}>{t.allFamily}</span>
+          </>
         )}
-        {members.map((member) => (
-          <SelectItem key={member.id} value={member.id} className="hover:bg-cyan-50">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-6 w-6 ring-1 ring-white shadow-sm">
-                <AvatarFallback style={{ backgroundColor: member.color }}>
-                  <User className="h-3 w-3 text-white" />
-                </AvatarFallback>
-              </Avatar>
-              <span>{member.name}</span>
-            </div>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+        <ChevronDown className="h-3.5 w-3.5 shrink-0 transition-transform" style={{ color: "var(--text-subtle)", transform: open ? "rotate(180deg)" : "rotate(0deg)" }} />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 overflow-hidden"
+          style={{ background: "var(--card)", border: "1px solid var(--card-border)", borderRadius: "12px", boxShadow: "var(--shadow-lg)" }}>
+          {showAllOption && (
+            <button
+              onClick={() => { onSelectMember(null); setOpen(false); }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors text-left"
+              style={{ color: !selectedMemberId ? "var(--brand)" : "var(--text-muted-custom)", background: !selectedMemberId ? "var(--brand-10)" : "transparent" }}
+              onMouseEnter={e => { if (selectedMemberId) (e.currentTarget as HTMLButtonElement).style.background = "var(--surface)"; }}
+              onMouseLeave={e => { if (selectedMemberId) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+            >
+              <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: "var(--brand-15)" }}>
+                <Users className="h-3.5 w-3.5" style={{ color: "var(--brand)" }} />
+              </div>
+              <span className="font-medium">{t.allFamily}</span>
+            </button>
+          )}
+          {members.map((member) => (
+            <button
+              key={member.id}
+              onClick={() => { onSelectMember(member.id); setOpen(false); }}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors text-left"
+              style={{ color: selectedMemberId === member.id ? "var(--brand)" : "var(--text-muted-custom)", background: selectedMemberId === member.id ? "var(--brand-10)" : "transparent" }}
+              onMouseEnter={e => { if (selectedMemberId !== member.id) (e.currentTarget as HTMLButtonElement).style.background = "var(--surface)"; }}
+              onMouseLeave={e => { if (selectedMemberId !== member.id) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+            >
+              <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: member.color }}>
+                <User className="h-3.5 w-3.5 text-white" />
+              </div>
+              <span className="font-medium">{member.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

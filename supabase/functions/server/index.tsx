@@ -58,4 +58,74 @@ app.post("/make-server-6595e014/auth/signup", async (c) => {
   }
 });
 
+// ── Gemini AI statement parser ────────────────────────────────────────────────
+const GEMINI_PROMPT = `You are a financial transaction parser for a Kazakh family finance app.
+Extract ALL transactions from this bank statement. Return ONLY valid JSON, no markdown, no explanation.
+
+JSON structure:
+{
+  "transactions": [
+    {
+      "date": "YYYY-MM-DD",
+      "description": "merchant or description, max 80 chars",
+      "amount": 12345.00,
+      "type": "expense or income",
+      "category": "one from the list below"
+    }
+  ]
+}
+
+Categories (use exactly): Продукты, Рестораны, Транспорт, Здоровье, Коммунальные услуги, Развлечения, Образование, Покупки, Зарплата, Фриланс, Инвестиции, Другой доход, Другие расходы
+
+Rules:
+- amount is always a POSITIVE number
+- type = "expense" if money left the account, "income" if money arrived
+- dates must be YYYY-MM-DD; missing year → use 2026
+- skip balance lines, headers, totals — only real transactions
+- extract every single transaction you can find`;
+
+app.post("/make-server-6595e014/ai/parse-statement", async (c) => {
+  try {
+    const apiKey = Deno.env.get("GEMINI_API_KEY");
+    if (!apiKey) return c.json({ error: "GEMINI_API_KEY not configured" }, 500);
+
+    const body = await c.req.json() as { text?: string; filename?: string };
+    if (!body.text?.trim()) return c.json({ error: "No text provided" }, 400);
+
+    const parts = [{ text: `${GEMINI_PROMPT}\n\nStatement text:\n"""\n${body.text.slice(0, 14000)}\n"""` }];
+
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
+        }),
+      }
+    );
+
+    if (!resp.ok) {
+      const err = await resp.text();
+      console.error("Gemini error:", err);
+      return c.json({ error: `Gemini API error: ${resp.status}` }, 502);
+    }
+
+    const data = await resp.json();
+    const raw: string = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const jsonStr = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+
+    try {
+      return c.json(JSON.parse(jsonStr));
+    } catch {
+      console.error("JSON parse failed:", jsonStr.slice(0, 300));
+      return c.json({ error: "Failed to parse Gemini response", raw: jsonStr.slice(0, 500) }, 502);
+    }
+  } catch (e) {
+    console.error("parse-statement error:", e);
+    return c.json({ error: String(e) }, 500);
+  }
+});
+
 Deno.serve(app.fetch);
