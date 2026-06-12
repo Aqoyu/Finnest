@@ -29,18 +29,18 @@ interface DashboardProps {
   budgets?: Budget[];
 }
 
-const GOAL_COLORS = ["#E8A020","#06b6d4","#8b5cf6","#10b981","#ef4444","#f97316","#3b82f6","#ec4899"];
+const GOAL_COLORS = ["#8B5CF6","#06b6d4","#10b981","#F59E0B","#EF4444","#F97316","#3B82F6","#EC4899"];
 
 const card: React.CSSProperties = {
   background: "var(--card)",
   border: "1px solid var(--card-border)",
-  borderRadius: "14px",
+  borderRadius: "18px",
 };
 
 const cardGlass: React.CSSProperties = {
   background: "var(--card)",
   border: "1px solid var(--card-border)",
-  borderRadius: "14px",
+  borderRadius: "18px",
   backdropFilter: "var(--card-blur)",
 };
 
@@ -131,77 +131,76 @@ function FinancialCompass({ income, expenses, privacy }: { income: number; expen
 
   const fmt = (n: number) => privacy ? "••••" : n.toLocaleString("ru-KZ");
 
+  /* compass bg is always dark (#1A1230 light / #0E0E14 dark),
+     so we use explicit white-alpha colours — never CSS vars */
   return (
-    <div className="overflow-hidden relative p-4" style={{
+    <div className="p-4 rounded-[18px]" style={{
       background: "var(--compass-bg)",
-      border: "1px solid var(--brand-15)",
-      borderRadius: "14px",
-      boxShadow: "0 0 40px var(--brand-5)",
+      border: "1px solid rgba(139,92,246,0.18)",
     }}>
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: "radial-gradient(ellipse at top right, var(--brand-10) 0%, transparent 60%)"
-      }} />
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <p className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+            Финансовый компас
+          </p>
+          <p className="text-xs font-semibold" style={{ color: "rgba(255,255,255,0.9)" }}>
+            {status.emoji} {status.label}
+          </p>
+        </div>
+        <div className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: "rgba(139,92,246,0.18)" }}>
+          <Calendar className="h-3 w-3" style={{ color: "rgba(255,255,255,0.5)" }} />
+          <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.65)" }}>{daysLeft} дн.</span>
+        </div>
+      </div>
 
-      <div className="relative z-10">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <p className="text-[9px] font-semibold uppercase tracking-widest mb-0.5" style={{ color: "var(--text-subtle)" }}>Финансовый компас</p>
-            <p className="text-xs font-semibold" style={{ color: "var(--text-strong)" }}>{status.emoji} {status.label}</p>
-          </div>
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: "var(--brand-5)" }}>
-            <Calendar className="h-3 w-3" style={{ color: "var(--text-subtle)" }} />
-            <span className="text-[10px]" style={{ color: "var(--text-subtle)" }}>{daysLeft} дн.</span>
+      <div className="flex items-center gap-4">
+        <div className="relative shrink-0">
+          <svg width="112" height="112" className="-rotate-90">
+            <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="8" />
+            <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="8"
+              strokeDasharray={`${dashMonth} ${circ}`} strokeLinecap="round" />
+            <circle cx={CX} cy={CY} r={R} fill="none" stroke={status.color} strokeWidth="8"
+              strokeDasharray={`${dashBudget} ${circ}`} strokeLinecap="round" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.4)" }}>потрачено</span>
+            <span className="font-bold text-lg leading-none" style={{ color: "#fff" }}>{budgetPct}%</span>
+            <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.4)" }}>из дохода</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="relative shrink-0">
-            <svg width="112" height="112" className="-rotate-90">
-              <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-              <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="8"
-                strokeDasharray={`${dashMonth} ${circ}`} strokeLinecap="round" />
-              <circle cx={CX} cy={CY} r={R} fill="none" stroke={status.color} strokeWidth="8"
-                strokeDasharray={`${dashBudget} ${circ}`} strokeLinecap="round"
-                style={{ filter: `drop-shadow(0 0 6px ${status.color}60)` }} />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[9px]" style={{ color: "#5A6A85" }}>потрачено</span>
-              <span className="text-white font-bold text-lg leading-none">{budgetPct}%</span>
-              <span className="text-[9px]" style={{ color: "#5A6A85" }}>из дохода</span>
-            </div>
+        <div className="flex-1 space-y-2">
+          <div className="px-3 py-2.5 rounded-xl" style={{ background: "rgba(139,92,246,0.2)", border: "1px solid rgba(139,92,246,0.25)" }}>
+            <p className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+              Можно тратить в день
+            </p>
+            <p className="font-bold text-xl leading-tight" style={{ color: "#A78BFA" }}>
+              {dailyBudget > 0 ? `₸${fmt(dailyBudget)}` : income === 0 ? "Нет дохода" : "Лимит"}
+            </p>
           </div>
-
-          <div className="flex-1 space-y-2">
-            <div className="px-3 py-2.5 rounded-xl" style={{ background: "var(--brand-10)", border: "1px solid var(--brand-15)" }}>
-              <p className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: "var(--text-subtle)" }}>Можно тратить в день</p>
-              <p className="font-bold text-xl leading-tight" style={{ color: "var(--brand)" }}>
-                {dailyBudget > 0 ? `₸${fmt(dailyBudget)}` : income === 0 ? "Нет дохода" : "Лимит"}
+          <div className="grid grid-cols-2 gap-1.5">
+            <div className="px-2.5 py-2 rounded-xl" style={{ background: "rgba(255,255,255,0.07)" }}>
+              <p className="text-[8px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>В среднем/день</p>
+              <p className="font-bold text-xs mt-0.5" style={{ color: "#fff" }}>₸{fmt(avgDailySpend)}</p>
+            </div>
+            <div className="px-2.5 py-2 rounded-xl" style={{ background: "rgba(255,255,255,0.07)" }}>
+              <p className="text-[8px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.4)" }}>Остаток</p>
+              <p className="font-bold text-xs mt-0.5" style={{ color: remaining >= 0 ? "#34D399" : "#F87171" }}>
+                {remaining >= 0 ? "" : "−"}₸{fmt(Math.abs(remaining))}
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              <div className="px-2.5 py-2 rounded-xl" style={{ background: "var(--brand-5)" }}>
-                <p className="text-[8px] uppercase tracking-wider" style={{ color: "var(--text-subtle)" }}>В среднем/день</p>
-                <p className="font-bold text-xs mt-0.5" style={{ color: "var(--text-strong)" }}>₸{fmt(avgDailySpend)}</p>
-              </div>
-              <div className="px-2.5 py-2 rounded-xl" style={{ background: "var(--brand-5)" }}>
-                <p className="text-[8px] uppercase tracking-wider" style={{ color: "var(--text-subtle)" }}>Остаток</p>
-                <p className="font-bold text-xs mt-0.5" style={{ color: remaining >= 0 ? "#10b981" : "#ef4444" }}>
-                  {remaining >= 0 ? "" : "−"}₸{fmt(Math.abs(remaining))}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
+      </div>
 
-        <div className="mt-3 space-y-1">
-          <div className="flex justify-between text-[9px]" style={{ color: "var(--text-dim)" }}>
-            <span>Время месяца {monthPct}%</span>
-            <span>Бюджет {Math.min(budgetPct, 100)}%</span>
-          </div>
-          <div className="h-1 rounded-full overflow-hidden relative" style={{ background: "var(--divider)" }}>
-            <div className="h-full rounded-full absolute" style={{ width: `${monthPct}%`, background: "rgba(255,255,255,0.15)" }} />
-            <div className="h-full rounded-full absolute transition-all" style={{ width: `${Math.min(budgetPct, 100)}%`, backgroundColor: status.color, opacity: 0.7 }} />
-          </div>
+      <div className="mt-3 space-y-1">
+        <div className="flex justify-between text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+          <span>Время месяца {monthPct}%</span>
+          <span>Бюджет {Math.min(budgetPct, 100)}%</span>
+        </div>
+        <div className="h-1 rounded-full overflow-hidden relative" style={{ background: "rgba(255,255,255,0.08)" }}>
+          <div className="h-full rounded-full absolute" style={{ width: `${monthPct}%`, background: "rgba(255,255,255,0.2)" }} />
+          <div className="h-full rounded-full absolute transition-all" style={{ width: `${Math.min(budgetPct, 100)}%`, backgroundColor: status.color, opacity: 0.85 }} />
         </div>
       </div>
     </div>
@@ -229,9 +228,9 @@ function TrendBarChart({ data }: { data: { month: string; income: number; expens
         return (
           <g key={`bar-${i}`}>
             {/* Income bar */}
-            <rect x={x} y={H - ih} width={barW} height={ih} fill="#10b981" rx={2} opacity={0.85} />
+            <rect x={x} y={H - ih} width={barW} height={ih} fill="#34D399" rx={3} opacity={0.9} />
             {/* Expense bar */}
-            <rect x={x + barW + gap} y={H - eh} width={barW} height={eh} fill="#ef4444" rx={2} opacity={0.85} />
+            <rect x={x + barW + gap} y={H - eh} width={barW} height={eh} fill="#F87171" rx={3} opacity={0.9} />
             {/* Month label */}
             <text x={x + barW + gap / 2} y={H + 13} textAnchor="middle" fontSize={9} fill="var(--text-dim)" fontFamily="Inter,sans-serif">
               {d.month}
@@ -343,32 +342,131 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
 
   return (
     <div className="space-y-3">
-      {/* Month navigator */}
-      <div className="flex items-center justify-between px-3 py-2 rounded-2xl" style={cardGlass}>
-        <button onClick={() => setMonthOffset(o => o - 1)}
-          className="w-8 h-8 flex items-center justify-center rounded-xl transition-all"
-          style={{ color: "var(--text-subtle)" }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--brand)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-subtle)"; }}>
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold capitalize" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{monthLabel}</span>
-          {!isCurrentMonth && (
-            <button onClick={() => setMonthOffset(0)}
-              className="text-[10px] font-medium px-2 py-0.5 rounded-lg transition-colors"
-              style={{ background: "var(--brand-10)", color: "var(--brand)" }}>
-              Сейчас
+
+      {/* ── Hero balance card ─────────────────────────────── */}
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background: "var(--balance-bg)",
+          border: "1px solid var(--balance-border)",
+          borderRadius: "24px",
+          padding: "24px",
+        }}
+      >
+        {/* Decorative orbs inside hero */}
+        <div style={{
+          position: "absolute", top: "-40%", right: "-15%",
+          width: "55%", height: "160%",
+          background: "radial-gradient(circle, rgba(139,92,246,0.35) 0%, transparent 65%)",
+          borderRadius: "50%", pointerEvents: "none",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "-30%", left: "10%",
+          width: "40%", height: "120%",
+          background: "radial-gradient(circle, rgba(79,70,229,0.2) 0%, transparent 65%)",
+          borderRadius: "50%", pointerEvents: "none",
+        }} />
+
+        <div className="relative">
+          {/* Month navigation row */}
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setMonthOffset(o => o - 1)}
+                className="w-7 h-7 flex items-center justify-center rounded-xl transition-all"
+                style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-semibold capitalize" style={{ color: "rgba(255,255,255,0.85)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                {monthLabel}
+              </span>
+              <button
+                onClick={() => setMonthOffset(o => Math.min(0, o + 1))}
+                disabled={isCurrentMonth}
+                className="w-7 h-7 flex items-center justify-center rounded-xl transition-all disabled:opacity-30"
+                style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              {!isCurrentMonth && (
+                <button
+                  onClick={() => setMonthOffset(0)}
+                  className="text-[10px] font-semibold px-2.5 py-1 rounded-xl"
+                  style={{ background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.9)" }}
+                >
+                  Сейчас
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setPrivacy(p => !p)}
+              className="w-7 h-7 flex items-center justify-center rounded-xl transition-all"
+              style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }}
+            >
+              {privacy ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
-          )}
+          </div>
+
+          {/* Balance label */}
+          <p
+            className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-2"
+            style={{ color: "rgba(255,255,255,0.45)" }}
+          >
+            {selectedMemberId ? t.dashboard.balance : t.dashboard.totalBalance}
+          </p>
+
+          {/* Balance number — HUGE */}
+          <div
+            className="font-bold leading-none mb-2"
+            style={{
+              fontSize: "clamp(36px, 10vw, 52px)",
+              color: "#FFFFFF",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              letterSpacing: "-0.04em",
+            }}
+          >
+            {privacy ? "₸ ••••••" : `₸${Math.abs(balance).toLocaleString("ru-KZ", { minimumFractionDigits: 0 })}`}
+          </div>
+
+          {/* Balance trend label */}
+          <div className="flex items-center gap-1.5 mb-6">
+            <span
+              className="text-xs font-semibold px-2 py-0.5 rounded-lg"
+              style={{
+                background: balance >= 0 ? "rgba(52,211,153,0.2)" : "rgba(248,113,113,0.2)",
+                color: balance >= 0 ? "#34D399" : "#F87171",
+              }}
+            >
+              {balance >= 0 ? "↑" : "↓"} {balance >= 0 ? t.dashboard.positiveBalance : t.dashboard.negativeBalance}
+            </span>
+          </div>
+
+          {/* Income / Expense inline */}
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { type: "income" as const, label: t.dashboard.income, Icon: TrendingUp, color: "#34D399", value: totalIncome },
+              { type: "expense" as const, label: t.dashboard.expenses, Icon: TrendingDown, color: "#F87171", value: totalExpenses },
+            ].map(({ type, label, Icon, color, value }) => (
+              <div
+                key={type}
+                className="rounded-2xl"
+                style={{ background: "rgba(255,255,255,0.08)", padding: "12px 14px" }}
+              >
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Icon style={{ width: "12px", height: "12px", color }} />
+                  <span className="text-[10px] font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>{label}</span>
+                </div>
+                <p className="font-bold text-sm" style={{ color, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {privacy ? "₸••••" : `₸${fmt(value)}`}
+                </p>
+                <p className="text-[9px] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  {monthTx.filter(tx => tx.type === type).length} {t.dashboard.transactionShort}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-        <button onClick={() => setMonthOffset(o => Math.min(0, o + 1))} disabled={isCurrentMonth}
-          className="w-8 h-8 flex items-center justify-center rounded-xl transition-all disabled:opacity-20"
-          style={{ color: "var(--text-subtle)" }}
-          onMouseEnter={e => { if (!isCurrentMonth) (e.currentTarget as HTMLButtonElement).style.color = "var(--brand)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-subtle)"; }}>
-          <ChevronRight className="h-4 w-4" />
-        </button>
       </div>
 
       {/* Financial Compass */}
@@ -376,23 +474,23 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
 
       {/* Budget alerts */}
       {isCurrentMonth && budgetAlerts.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {budgetAlerts.map(b => (
-            <div key={b.category} className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm"
+            <div key={b.category} className="flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={{
-                background: b.pct >= 100 ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)",
-                border: `1px solid ${b.pct >= 100 ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)"}`,
+                background: b.pct >= 100 ? "rgba(248,113,113,0.08)" : "rgba(251,191,36,0.08)",
+                border: `1px solid ${b.pct >= 100 ? "rgba(248,113,113,0.2)" : "rgba(251,191,36,0.2)"}`,
               }}>
-              <AlertTriangle className="h-4 w-4 shrink-0" style={{ color: b.pct >= 100 ? "#ef4444" : "#f59e0b" }} />
+              <AlertTriangle className="h-4 w-4 shrink-0" style={{ color: b.pct >= 100 ? "#F87171" : "#FCD34D" }} />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold" style={{ color: b.pct >= 100 ? "#f87171" : "#fbbf24" }}>
+                <p className="text-xs font-semibold" style={{ color: b.pct >= 100 ? "#F87171" : "#FCD34D" }}>
                   {catEmoji(b.category)} {translateCategory(b.category)} — {b.pct}%
                 </p>
-                <div className="h-1 rounded-full mt-1 overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-                  <div className="h-full rounded-full" style={{ width: `${Math.min(b.pct, 100)}%`, backgroundColor: b.pct >= 100 ? "#ef4444" : "#f59e0b" }} />
+                <div className="h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(b.pct, 100)}%`, backgroundColor: b.pct >= 100 ? "#F87171" : "#FCD34D" }} />
                 </div>
               </div>
-              <span className="text-[10px] font-bold shrink-0" style={{ color: b.pct >= 100 ? "#f87171" : "#fbbf24" }}>
+              <span className="text-[10px] font-bold shrink-0" style={{ color: b.pct >= 100 ? "#F87171" : "#FCD34D" }}>
                 {privacy ? "₸••••" : `₸${b.spent.toLocaleString("ru-KZ", { maximumFractionDigits: 0 })}`}
               </span>
             </div>
@@ -400,91 +498,42 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
         </div>
       )}
 
-      {/* Balance card */}
-      <div className="p-5 relative overflow-hidden" style={{
-        background: "var(--balance-bg)",
-        border: "1px solid var(--balance-border)",
-        borderRadius: "14px",
-        boxShadow: "0 8px 32px var(--brand-10)",
-      }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: "radial-gradient(ellipse at top right, var(--brand-15) 0%, transparent 60%)"
-        }} />
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-[10px] uppercase tracking-widest font-medium" style={{ color: "var(--brand)" }}>
-                {selectedMemberId ? t.dashboard.balance : t.dashboard.totalBalance}
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: "var(--text-subtle)" }}>
-                {balance >= 0 ? t.dashboard.positiveBalance : t.dashboard.negativeBalance}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setPrivacy(p => !p)}
-                className="w-8 h-8 flex items-center justify-center rounded-xl transition-all"
-                style={{ background: "var(--brand-10)", color: "var(--brand)" }}>
-                {privacy ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-              <div className="w-8 h-8 flex items-center justify-center rounded-xl" style={{ background: "var(--brand-10)" }}>
-                <Wallet className="h-4 w-4" style={{ color: "var(--brand)" }} />
-              </div>
-            </div>
-          </div>
-          <div className="text-3xl font-bold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "-0.02em" }}>
-            {privacy ? "₸ ••••••" : `₸${Math.abs(balance).toLocaleString("ru-KZ", { minimumFractionDigits: 0 })}`}
-          </div>
-        </div>
-      </div>
-
-      {/* Income / Expense */}
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          { type: "income" as const, label: t.dashboard.income, Icon: TrendingUp, color: "#10b981", bg: "var(--income-bg)", border: "var(--income-border)", value: totalIncome },
-          { type: "expense" as const, label: t.dashboard.expenses, Icon: TrendingDown, color: "#ef4444", bg: "var(--expense-bg)", border: "var(--expense-border)", value: totalExpenses },
-        ].map(({ type, label, Icon, color, bg, border, value }) => (
-          <div key={type} className="p-4" style={{ ...card, background: bg, borderColor: border }}>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium" style={{ color: "var(--text-subtle)" }}>{label}</p>
-              <div className="w-7 h-7 flex items-center justify-center rounded-lg" style={{ background: `${color}20` }}>
-                <Icon className="h-3.5 w-3.5" style={{ color }} />
-              </div>
-            </div>
-            <p className="text-base font-bold" style={{ color, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              {privacy ? "₸••••" : `₸${fmt(value)}`}
-            </p>
-            <p className="text-[10px] mt-0.5" style={{ color: "var(--text-dim)" }}>
-              {monthTx.filter(tx => tx.type === type).length} {t.dashboard.transactionShort}
-            </p>
-          </div>
-        ))}
-      </div>
-
       {/* Recent transactions */}
       {recentTx.length > 0 && (
-        <div className="p-4" style={card}>
-          <div className="flex items-center justify-between mb-3">
+        <div className="p-5" style={card}>
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Flame className="h-4 w-4" style={{ color: "var(--brand)" }} />
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "var(--brand-10)" }}>
+                <Flame className="h-3.5 w-3.5" style={{ color: "var(--brand)" }} />
+              </div>
               <h3 className="text-sm font-semibold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 Последние операции
               </h3>
             </div>
-            <span className="text-[10px] capitalize" style={{ color: "var(--text-subtle)" }}>{monthLabel}</span>
+            <span className="text-[10px] font-medium capitalize px-2 py-1 rounded-lg" style={{ background: "var(--surface)", color: "var(--text-subtle)" }}>{monthLabel}</span>
           </div>
-          <div className="space-y-0">
-            {recentTx.map(tx => (
-              <div key={tx.id} className="flex items-center gap-2.5 py-2.5" style={{ borderBottom: "1px solid var(--divider)" }}>
-                <span className="text-base leading-none shrink-0">{catEmoji(tx.category)}</span>
+          <div>
+            {recentTx.map((tx, idx) => (
+              <div
+                key={tx.id}
+                className="flex items-center gap-3 py-3"
+                style={{ borderBottom: idx < recentTx.length - 1 ? "1px solid var(--divider)" : "none" }}
+              >
+                <div
+                  className="w-9 h-9 rounded-2xl flex items-center justify-center text-base shrink-0"
+                  style={{ background: "var(--surface)" }}
+                >
+                  {catEmoji(tx.category)}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate" style={{ color: "var(--text-strong)" }}>{tx.description}</p>
-                  <p className="text-[10px]" style={{ color: "var(--text-subtle)" }}>{translateCategory(tx.category)}</p>
+                  <p className="text-xs font-semibold truncate" style={{ color: "var(--text-strong)" }}>{tx.description}</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "var(--text-subtle)" }}>{translateCategory(tx.category)}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-xs font-bold" style={{ color: tx.type === "income" ? "#10b981" : "#ef4444" }}>
+                  <p className="text-xs font-bold" style={{ color: tx.type === "income" ? "#34D399" : "#F87171" }}>
                     {tx.type === "income" ? "+" : "−"}{privacy ? "••••" : `₸${tx.amount.toLocaleString("ru-KZ", { maximumFractionDigits: 0 })}`}
                   </p>
-                  <p className="text-[9px]" style={{ color: "var(--text-dim)" }}>{format(new Date(tx.date), "d MMM", { locale: ru })}</p>
+                  <p className="text-[9px] mt-0.5" style={{ color: "var(--text-dim)" }}>{format(new Date(tx.date), "d MMM", { locale: ru })}</p>
                 </div>
               </div>
             ))}
@@ -493,27 +542,33 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
       )}
 
       {/* Savings goals */}
-      <div className="p-4" style={card}>
-        <div className="flex items-center justify-between mb-3">
+      <div className="p-5" style={card}>
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Target className="h-4 w-4" style={{ color: "var(--brand)" }} />
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "var(--brand-10)" }}>
+              <Target className="h-3.5 w-3.5" style={{ color: "var(--brand)" }} />
+            </div>
             <h3 className="text-sm font-semibold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Цели накопления
             </h3>
           </div>
-          <button onClick={() => { setShowGoalForm(true); setEditingGoalId(null); }}
+          <button
+            onClick={() => { setShowGoalForm(true); setEditingGoalId(null); }}
             className="w-7 h-7 rounded-xl flex items-center justify-center transition-all"
-            style={{ background: "var(--brand-grad)" }}>
-            <Plus className="h-3.5 w-3.5" style={{ color: "var(--primary-foreground)" }} />
+            style={{ background: "var(--brand-grad)", boxShadow: "0 2px 8px var(--brand-25)" }}
+          >
+            <Plus className="h-3.5 w-3.5 text-white" />
           </button>
         </div>
 
         <div className="space-y-3">
           {showGoalForm && !editingGoalId && <GoalForm onSave={addGoal} onCancel={() => setShowGoalForm(false)} />}
           {goals.length === 0 && !showGoalForm && (
-            <div className="text-center py-6">
-              <Target className="h-8 w-8 mx-auto mb-2" style={{ color: "var(--text-dim)" }} />
-              <p className="text-xs" style={{ color: "var(--text-subtle)" }}>Нет целей. Нажмите + чтобы добавить</p>
+            <div className="text-center py-8">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: "var(--surface)" }}>
+                <Target className="h-6 w-6" style={{ color: "var(--text-dim)" }} />
+              </div>
+              <p className="text-xs font-medium" style={{ color: "var(--text-subtle)" }}>Нет целей. Нажмите + чтобы добавить</p>
             </div>
           )}
           {goals.map(goal => {
@@ -530,33 +585,44 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
               : null;
 
             return (
-              <div key={goal.id} className="p-3 rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--card-border)" }}>
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: goal.color }} />
+              <div key={goal.id} className="p-3.5 rounded-2xl" style={{ background: "var(--surface)", border: "1px solid var(--card-border)" }}>
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: goal.color, boxShadow: `0 0 0 3px ${goal.color}22` }} />
                     <p className="text-sm font-semibold truncate" style={{ color: "var(--text-strong)" }}>{goal.name}</p>
-                    {done && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(16,185,129,0.15)", color: "#10b981" }}>🎉 Готово!</span>}
+                    {done && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-lg shrink-0" style={{ background: "rgba(52,211,153,0.15)", color: "#34D399" }}>
+                        🎉 Готово!
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <button onClick={() => { setEditingGoalId(goal.id); setShowGoalForm(false); }}
+                    <button
+                      onClick={() => { setEditingGoalId(goal.id); setShowGoalForm(false); }}
                       className="w-6 h-6 rounded-lg flex items-center justify-center transition-colors"
                       style={{ color: "var(--text-dim)" }}
                       onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--brand)"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-dim)"; }}>
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-dim)"; }}
+                    >
                       <Pencil className="h-3 w-3" />
                     </button>
-                    <button onClick={() => deleteGoal(goal.id)}
+                    <button
+                      onClick={() => deleteGoal(goal.id)}
                       className="w-6 h-6 rounded-lg flex items-center justify-center transition-colors"
                       style={{ color: "var(--text-dim)" }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#ef4444"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-dim)"; }}>
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#EF4444"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-dim)"; }}
+                    >
                       <Trash2 className="h-3 w-3" />
                     </button>
                   </div>
                 </div>
 
-                <div className="h-1.5 rounded-full overflow-hidden mb-1" style={{ background: "var(--divider)" }}>
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: goal.color }} />
+                <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: "var(--divider)" }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${pct}%`, backgroundColor: goal.color, boxShadow: `0 0 6px ${goal.color}66` }}
+                  />
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[10px]" style={{ color: "var(--text-subtle)" }}>
@@ -586,25 +652,39 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
 
       {/* Family members */}
       {!selectedMemberId && memberStats.length > 0 && (
-        <div className="p-4" style={card}>
-          <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            {t.dashboard.byFamilyMembers}
-          </h3>
+        <div className="p-5" style={card}>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "var(--brand-10)" }}>
+              <User className="h-3.5 w-3.5" style={{ color: "var(--brand)" }} />
+            </div>
+            <h3 className="text-sm font-semibold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              {t.dashboard.byFamilyMembers}
+            </h3>
+          </div>
           <div className="space-y-2">
             {memberStats.map(({ member, income, expenses, balance: bal }) => (
-              <div key={member.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--card-border)" }}>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: member.color }}>
-                  <User className="h-3.5 w-3.5 text-white" />
+              <div key={member.id} className="flex items-center gap-3 p-3 rounded-2xl" style={{ background: "var(--surface)" }}>
+                <div
+                  className="w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 text-white text-xs font-bold"
+                  style={{ backgroundColor: member.color }}
+                >
+                  {member.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-xs truncate" style={{ color: "var(--text-strong)" }}>{member.name}</p>
-                  <div className="flex gap-1 text-[10px] mt-0.5">
-                    <span style={{ color: "#10b981" }}>+₸{privacy ? "••••" : fmt(income)}</span>
-                    <span style={{ color: "var(--text-dim)" }}>/</span>
-                    <span style={{ color: "#ef4444" }}>−₸{privacy ? "••••" : fmt(expenses)}</span>
+                  <p className="font-semibold text-xs truncate" style={{ color: "var(--text-strong)" }}>{member.name}</p>
+                  <div className="flex gap-1.5 text-[10px] mt-0.5">
+                    <span style={{ color: "#34D399" }}>+₸{privacy ? "••••" : fmt(income)}</span>
+                    <span style={{ color: "var(--text-dim)" }}>·</span>
+                    <span style={{ color: "#F87171" }}>−₸{privacy ? "••••" : fmt(expenses)}</span>
                   </div>
                 </div>
-                <span className="font-bold text-xs shrink-0" style={{ color: bal >= 0 ? "#10b981" : "#ef4444" }}>
+                <span
+                  className="font-bold text-xs shrink-0 px-2.5 py-1 rounded-xl"
+                  style={{
+                    color: bal >= 0 ? "#34D399" : "#F87171",
+                    background: bal >= 0 ? "rgba(52,211,153,0.1)" : "rgba(248,113,113,0.1)",
+                  }}
+                >
                   {privacy ? "₸••••" : `₸${fmt(Math.abs(bal))}`}
                 </span>
               </div>
@@ -615,19 +695,24 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
 
       {/* 6-month trend */}
       {hasTrendData && (
-        <div className="p-4" style={card}>
-          <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Тренд за 6 месяцев
-          </h3>
+        <div className="p-5" style={card}>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "var(--brand-10)" }}>
+              <TrendingUp className="h-3.5 w-3.5" style={{ color: "var(--brand)" }} />
+            </div>
+            <h3 className="text-sm font-semibold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Тренд за 6 месяцев
+            </h3>
+          </div>
           <TrendBarChart data={trendData} />
-          <div className="flex justify-center gap-4 mt-1">
+          <div className="flex justify-center gap-5 mt-3">
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: "#10b981" }} />
-              <span className="text-[10px]" style={{ color: "var(--text-subtle)" }}>Доходы</span>
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#34D399" }} />
+              <span className="text-[10px] font-medium" style={{ color: "var(--text-subtle)" }}>Доходы</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: "#ef4444" }} />
-              <span className="text-[10px]" style={{ color: "var(--text-subtle)" }}>Расходы</span>
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#F87171" }} />
+              <span className="text-[10px] font-medium" style={{ color: "var(--text-subtle)" }}>Расходы</span>
             </div>
           </div>
         </div>
@@ -635,16 +720,16 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
 
       {/* Category charts */}
       {expCats.length > 0 && (
-        <div className="p-4" style={card}>
-          <h3 className="text-sm font-semibold mb-2" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="p-5" style={card}>
+          <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {t.dashboard.expenseCategories}
           </h3>
           <FinancialChart data={expCats} />
         </div>
       )}
       {incCats.length > 0 && (
-        <div className="p-4" style={card}>
-          <h3 className="text-sm font-semibold mb-2" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="p-5" style={card}>
+          <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {t.dashboard.incomeCategories}
           </h3>
           <FinancialChart data={incCats} />
@@ -652,12 +737,15 @@ export function Dashboard({ transactions, members, selectedMemberId, goals, onUp
       )}
 
       {monthTx.length === 0 && (
-        <div className="flex flex-col items-center py-10 px-4 rounded-2xl" style={cardGlass}>
-          <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ background: "var(--brand-10)" }}>
-            <Wallet className="h-7 w-7" style={{ color: "var(--brand)", opacity: 0.5 }} />
+        <div className="flex flex-col items-center py-12 px-4 rounded-3xl" style={cardGlass}>
+          <div
+            className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4"
+            style={{ background: "var(--brand-10)", border: "1px solid var(--brand-15)" }}
+          >
+            <Wallet className="h-8 w-8" style={{ color: "var(--brand)", opacity: 0.6 }} />
           </div>
-          <p className="text-sm font-medium mb-1" style={{ color: "var(--text-strong)" }}>{t.dashboard.noTransactions}</p>
-          <p className="text-xs text-center" style={{ color: "var(--text-subtle)" }}>{t.dashboard.noTransactionsHint}</p>
+          <p className="text-sm font-semibold mb-1.5" style={{ color: "var(--text-strong)" }}>{t.dashboard.noTransactions}</p>
+          <p className="text-xs text-center leading-relaxed" style={{ color: "var(--text-subtle)" }}>{t.dashboard.noTransactionsHint}</p>
         </div>
       )}
     </div>

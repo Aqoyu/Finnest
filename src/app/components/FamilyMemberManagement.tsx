@@ -1,11 +1,6 @@
 import { useState } from "react";
-import { Users, Plus, Edit2, Trash2, User, Lock } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { Users, Plus, Edit2, Trash2, Lock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "./ui/dialog";
-import { Avatar, AvatarFallback } from "./ui/avatar";
 import { useLanguage } from "../context/LanguageContext";
 import { toast } from "sonner";
 
@@ -22,9 +17,9 @@ interface FamilyMemberManagementProps {
 }
 
 const COLORS = [
-  "#0891b2", "#06b6d4", "#22d3ee", "#10b981",
-  "#3b82f6", "#6366f1", "#8b5cf6", "#ec4899",
-  "#f59e0b", "#ef4444", "#14b8a6", "#84cc16",
+  "#8B5CF6", "#7C3AED", "#6D28D9", "#A78BFA",
+  "#3B82F6", "#6366F1", "#EC4899", "#10B981",
+  "#F59E0B", "#EF4444", "#06B6D4", "#14B8A6",
 ];
 
 export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMemberManagementProps) {
@@ -90,131 +85,136 @@ export function FamilyMemberManagement({ members, onUpdateMembers }: FamilyMembe
     toast.success(t.familyManagement.memberDeleted);
   };
 
+  const inp: React.CSSProperties = {
+    background: "var(--input-bg)", border: "1px solid var(--input-border)",
+    color: "var(--text-strong)", borderRadius: "10px",
+    width: "100%", padding: "10px 12px", fontSize: "14px", outline: "none",
+  };
+
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+        <h2 className="text-base font-bold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           {t.familyManagement.title}
         </h2>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button
+            <button
               onClick={() => { setEditingMember(null); setMemberName(""); setSelectedColor(COLORS[0]); setMemberPin(""); }}
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 shadow-md"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+              style={{ background: "var(--brand)", color: "#fff" }}
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="h-4 w-4" />
               {t.familyManagement.add}
-            </Button>
+            </button>
           </DialogTrigger>
-          <DialogContent className="bg-white/95 backdrop-blur-xl">
+          <DialogContent style={{ background: "var(--card)", border: "1px solid var(--card-border)" }}>
             <DialogHeader>
-              <DialogTitle className="text-cyan-700">
+              <DialogTitle style={{ color: "var(--text-strong)" }}>
                 {editingMember ? t.familyManagement.editMember : t.familyManagement.addMember}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription style={{ color: "var(--text-subtle)" }}>
                 {editingMember ? t.familyManagement.editMemberDesc : t.familyManagement.addMemberDesc}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="member-name">{t.familyManagement.name}</Label>
-                <Input
-                  id="member-name"
-                  placeholder={t.familyManagement.namePlaceholder}
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                  className="bg-white"
-                />
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium" style={{ color: "var(--text-subtle)" }}>{t.familyManagement.name}</label>
+                <input style={inp} placeholder={t.familyManagement.namePlaceholder} value={memberName} onChange={e => setMemberName(e.target.value)} />
               </div>
 
-              <div className="space-y-2">
-                <Label>{t.familyManagement.color}</Label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium" style={{ color: "var(--text-subtle)" }}>{t.familyManagement.color}</label>
                 <div className="grid grid-cols-6 gap-2">
                   {COLORS.map((color) => (
                     <button
                       key={color}
                       type="button"
                       onClick={() => setSelectedColor(color)}
-                      className={`h-10 w-10 rounded-full transition-all shadow-sm ${
-                        selectedColor === color ? "ring-2 ring-offset-2 ring-cyan-500 scale-110" : ""
-                      }`}
-                      style={{ backgroundColor: color }}
+                      className="h-9 w-9 rounded-full transition-all"
+                      style={{
+                        backgroundColor: color,
+                        outline: selectedColor === color ? `3px solid ${color}` : "none",
+                        outlineOffset: "2px",
+                        transform: selectedColor === color ? "scale(1.15)" : "scale(1)",
+                      }}
                     />
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="member-pin">{t.familyManagement.pin}</Label>
-                <Input
-                  id="member-pin"
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium" style={{ color: "var(--text-subtle)" }}>{t.familyManagement.pin}</label>
+                <input
+                  style={inp}
                   type="text"
                   inputMode="numeric"
                   maxLength={4}
                   placeholder={t.familyManagement.pinPlaceholder}
                   value={memberPin}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, ""); // Only digits
-                    setMemberPin(value);
-                  }}
-                  className="bg-white"
+                  onChange={e => setMemberPin(e.target.value.replace(/\D/g, ""))}
                 />
-                <p className="text-xs text-muted-foreground">{t.familyManagement.pinOptional}</p>
+                <p className="text-xs" style={{ color: "var(--text-dim)" }}>{t.familyManagement.pinOptional}</p>
               </div>
 
-              <Button
+              <button
                 onClick={handleSaveMember}
-                className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
+                style={{ background: "var(--brand)", color: "#fff" }}
               >
                 {editingMember ? t.familyManagement.update : t.familyManagement.add}
-              </Button>
+              </button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
+      {/* Empty state */}
       {members.length === 0 ? (
-        <Card className="bg-white/70 backdrop-blur-lg border-cyan-200/50 shadow-md">
-          <CardContent className="pt-6">
-            <div className="text-center text-muted-foreground py-8">
-              <Users className="h-12 w-12 mx-auto mb-4 opacity-50 text-cyan-500" />
-              <p className="text-gray-700">{t.familyManagement.noMembers}</p>
-              <p className="text-sm mt-2">{t.familyManagement.noMembersHint}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center py-12 rounded-2xl" style={{ background: "var(--card)", border: "1px solid var(--card-border)" }}>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ background: "var(--brand-10)" }}>
+            <Users className="h-6 w-6" style={{ color: "var(--brand)" }} />
+          </div>
+          <p className="text-sm font-medium" style={{ color: "var(--text-strong)" }}>{t.familyManagement.noMembers}</p>
+          <p className="text-xs mt-1" style={{ color: "var(--text-subtle)" }}>{t.familyManagement.noMembersHint}</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3">
+        <div className="space-y-3">
           {members.map((member) => (
-            <Card key={member.id} className="bg-white/70 backdrop-blur-lg border-cyan-200/50 shadow-md hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="ring-2 ring-white shadow-md">
-                      <AvatarFallback style={{ backgroundColor: member.color }}>
-                        <User className="h-5 w-5 text-white" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-gray-800">{member.name}</p>
-                        {member.pin && (
-                          <Lock className="h-3.5 w-3.5 text-cyan-600" />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleEditMember(member)} className="hover:bg-cyan-50">
-                      <Edit2 className="h-4 w-4 text-cyan-600" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteMember(member.id)} className="hover:bg-red-50">
-                      <Trash2 className="h-4 w-4 text-red-600" />
-                    </Button>
+            <div key={member.id} className="flex items-center justify-between p-4 rounded-2xl" style={{ background: "var(--card)", border: "1px solid var(--card-border)" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ backgroundColor: member.color }}>
+                  {member.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-sm" style={{ color: "var(--text-strong)" }}>{member.name}</p>
+                    {member.pin && <Lock className="h-3 w-3" style={{ color: "var(--brand)" }} />}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => handleEditMember(member)}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                  style={{ color: "var(--text-subtle)" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--brand)"; (e.currentTarget as HTMLButtonElement).style.background = "var(--brand-10)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-subtle)"; (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+                >
+                  <Edit2 className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => handleDeleteMember(member.id)}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                  style={{ color: "var(--text-subtle)" }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#EF4444"; (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.08)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--text-subtle)"; (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}

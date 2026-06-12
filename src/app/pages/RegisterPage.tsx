@@ -76,7 +76,7 @@ export function RegisterPage() {
       <div className="w-full max-w-sm relative z-10">
         <div className="flex flex-col items-center mb-7">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "var(--surface)", border: "1px solid var(--brand-20)", boxShadow: "0 0 30px var(--brand-10)" }}>
+            style={{ background: "var(--card)", border: "1px solid var(--card-border)", boxShadow: "var(--shadow-card)" }}>
             <img src={logoImage} alt="FIN-NEST" className="h-9 w-9 object-contain" />
           </div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -164,7 +164,7 @@ export function RegisterPage() {
 
             <button type="submit" disabled={loading}
               className="w-full py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-1"
-              style={{ background: "var(--brand-grad)", color: "var(--primary-foreground)", boxShadow: "0 4px 20px var(--brand-20)" }}>
+              style={{ background: "var(--brand)", color: "var(--primary-foreground)" }}>
               {loading ? t.auth.registering : t.auth.registerButton}
             </button>
           </form>

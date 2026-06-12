@@ -58,7 +58,7 @@ export function ProfileSelector({ members, onSelectProfile }: ProfileSelectorPro
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ background: "var(--surface)", border: "1px solid var(--brand-20)", boxShadow: "0 0 30px var(--brand-10)" }}>
+            style={{ background: "var(--card)", border: "1px solid var(--card-border)", boxShadow: "var(--shadow-card)" }}>
             <img src={logoImage} alt="FIN-NEST" className="h-10 w-10 object-contain" />
           </div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -110,7 +110,7 @@ export function ProfileSelector({ members, onSelectProfile }: ProfileSelectorPro
             style={{
               background: "var(--brand-grad)",
               color: "var(--primary-foreground)",
-              boxShadow: selectedId ? "0 4px 20px var(--brand-25)" : "none",
+              
             }}
           >
             {t.profileSelector.continue}

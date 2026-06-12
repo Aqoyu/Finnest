@@ -17,58 +17,36 @@ export function Preloader() {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 overflow-hidden"
-      style={{ background: "var(--background)" }}>
+    <div className="fixed inset-0 flex items-center justify-center z-50 overflow-hidden" style={{ background: "#050507" }}>
+      {/* Background orbs */}
+      <div style={{
+        position: "absolute", top: "-20%", left: "-10%", width: "60vw", height: "60vw",
+        background: "radial-gradient(circle, rgba(109,40,217,0.25) 0%, transparent 65%)", borderRadius: "50%",
+      }} />
+      <div style={{
+        position: "absolute", bottom: "-20%", right: "-10%", width: "55vw", height: "55vw",
+        background: "radial-gradient(circle, rgba(79,70,229,0.18) 0%, transparent 65%)", borderRadius: "50%",
+      }} />
 
-      {/* Ambient glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.08] animate-blob"
-          style={{ background: `radial-gradient(circle, var(--brand) 0%, transparent 65%)` }} />
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: `linear-gradient(rgba(128,128,128,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(128,128,128,0.5) 1px, transparent 1px)`,
-          backgroundSize: "60px 60px"
-        }} />
-      </div>
+      <div className="flex flex-col items-center gap-8 relative z-10">
+        <img src={logoImage} alt="FIN-NEST" className="w-20 h-20 object-contain" />
 
-      <div className="relative z-10 flex flex-col items-center gap-10">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-36 h-36 rounded-full animate-ping-slow" style={{ border: "1px solid var(--brand-15)" }} />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-28 h-28 rounded-full animate-ping-slower animation-delay-1000" style={{ border: "1px solid var(--brand-10)" }} />
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full animate-ping-slowest animation-delay-2000" style={{ border: "1px solid var(--brand-5)" }} />
-          </div>
-          <div className="relative w-20 h-20 rounded-2xl flex items-center justify-center animate-float-gentle"
-            style={{ background: "var(--surface)", border: "1px solid var(--brand-20)", boxShadow: "0 0 40px var(--brand-10)" }}>
-            <img src={logoImage} alt="FIN-NEST" className="w-12 h-12 object-contain animate-pulse-gentle" />
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold" style={{ color: "var(--text-strong)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="flex flex-col items-center gap-5 text-center">
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: "#FAFAFA", fontFamily: "'Plus Jakarta Sans', sans-serif", letterSpacing: "-0.03em" }}>
               {t.appName}
             </h1>
-            <p className="text-sm mt-1" style={{ color: "var(--text-subtle)" }}>{t.appSubtitle}</p>
+            <p className="text-sm mt-1.5" style={{ color: "rgba(255,255,255,0.35)" }}>{t.appSubtitle}</p>
           </div>
 
-          <div className="flex flex-col items-center gap-2.5">
-            <div className="w-48 h-0.5 rounded-full overflow-hidden" style={{ background: "var(--brand-10)" }}>
-              <div className="h-full rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${Math.min(progress, 100)}%`, background: "var(--brand-grad)" }} />
+          <div className="flex flex-col items-center gap-2.5 w-40">
+            <div className="w-full h-0.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${Math.min(progress, 100)}%`, background: "linear-gradient(90deg, #7C3AED, #A78BFA)", boxShadow: "0 0 8px rgba(139,92,246,0.6)" }}
+              />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs" style={{ color: "var(--text-subtle)" }}>{t.loading}</span>
-              <div className="flex gap-1">
-                {[0, 1, 2].map(i => (
-                  <div key={i} className="w-1 h-1 rounded-full animate-bounce"
-                    style={{ backgroundColor: "var(--brand)", animationDelay: `${i * 0.15}s` }} />
-                ))}
-              </div>
-            </div>
+            <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>{t.loading}</span>
           </div>
         </div>
       </div>

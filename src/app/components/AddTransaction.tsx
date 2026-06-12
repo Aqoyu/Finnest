@@ -113,7 +113,7 @@ export function AddTransaction({ onAddTransaction, members, activeUserId }: AddT
 
       {/* Active user */}
       {activeUser && (
-        <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(232,160,32,0.06)", border: "1px solid rgba(232,160,32,0.12)" }}>
+        <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--card-border)" }}>
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
             style={{ backgroundColor: activeUser.color }}>
             {activeUser.name.charAt(0).toUpperCase()}
@@ -168,16 +168,13 @@ export function AddTransaction({ onAddTransaction, members, activeUserId }: AddT
         {/* Amount */}
         <div className="space-y-1.5">
           <label className="text-xs font-medium" style={{ color: "var(--text-subtle)" }}>{t.addTransaction.amount}</label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-semibold text-sm" style={{ color: "var(--text-subtle)" }}>₸</span>
-            <input id="amount" type="number" step="1" placeholder="0" value={amount}
-              onChange={e => setAmount(e.target.value)}
-              className="pl-8 text-base font-bold"
-              style={{ ...inputStyle }}
-              onFocus={focusIn}
-              onBlur={focusOut}
-            />
-          </div>
+          <input id="amount" type="number" step="1" placeholder="0" value={amount}
+            onChange={e => setAmount(e.target.value)}
+            className="text-base font-bold"
+            style={{ ...inputStyle }}
+            onFocus={focusIn}
+            onBlur={focusOut}
+          />
         </div>
 
         {/* Category */}
@@ -221,11 +218,7 @@ export function AddTransaction({ onAddTransaction, members, activeUserId }: AddT
 
         <button type="submit"
           className="w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
-          style={{
-            background: "linear-gradient(135deg, #E8A020 0%, #F0B429 100%)",
-            color: "var(--primary-foreground)",
-            boxShadow: "0 4px 20px rgba(232,160,32,0.25)",
-          }}>
+          style={{ background: "var(--brand)", color: "var(--primary-foreground)" }}>
           <Plus className="h-4 w-4" />{t.addTransaction.addButton}
         </button>
       </form>

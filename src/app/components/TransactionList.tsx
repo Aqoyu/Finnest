@@ -112,7 +112,7 @@ export function TransactionList({
                 style={{ border: "1px solid var(--card-border)", color: "var(--text-subtle)" }}>Отмена</button>
               <button onClick={handleConfirm}
                 className="flex-1 py-2.5 rounded-xl text-white text-sm font-bold transition-all"
-                style={{ background: "#ef4444", boxShadow: "0 4px 16px rgba(239,68,68,0.3)" }}>Удалить</button>
+                style={{ background: "#ef4444" }}>Удалить</button>
             </div>
           </div>
         </div>

@@ -4,9 +4,10 @@ import { useLanguage, LANGUAGES, Lang } from "../context/LanguageContext";
 
 interface LanguageSwitcherProps {
   variant?: "light" | "dark";
+  dropUp?: boolean;
 }
 
-export function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ variant = "dark", dropUp = false }: LanguageSwitcherProps) {
   const { lang, setLang } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -34,12 +35,20 @@ export function LanguageSwitcher({ variant = "dark" }: LanguageSwitcherProps) {
       >
         <Globe className="h-3 w-3" style={{ color: "var(--text-subtle)" }} />
         <span>{current.flag}</span>
-        <span className="hidden xs:inline">{current.label}</span>
+        <span>{current.label}</span>
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-1.5 z-50 overflow-hidden min-w-[110px]"
-          style={{ background: "var(--card)", border: "1px solid var(--card-border)", borderRadius: "12px", boxShadow: "var(--shadow-lg)" }}>
+        <div
+          className="absolute left-0 z-[9999] overflow-hidden min-w-[110px]"
+          style={{
+            ...(dropUp ? { bottom: "calc(100% + 6px)" } : { top: "calc(100% + 6px)" }),
+            background: "var(--card)",
+            border: "1px solid var(--card-border)",
+            borderRadius: "12px",
+            boxShadow: "var(--shadow-lg)",
+          }}
+        >
           {LANGUAGES.map((l) => (
             <button
               key={l.code}
